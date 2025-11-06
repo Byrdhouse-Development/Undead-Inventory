@@ -1,0 +1,29 @@
+name: '${project.name}'
+version: '${project.version}'
+main: com.undeadinventory.UndeadInventory
+load: POSTWORLD
+api-version: 1.20
+author: AmethystWyrm
+#  website: https://github.com/AmethystWyrm/Undead-Inventory
+description: When a player is killed by a humanoid mob, the mob takes the player's inventory and is renamed. Players can retrieve their items by killing the mob.
+# No commands are registered by default, but you can add them here if needed:
+commands:
+  undeadinventory:
+    description: Main command for UndeadInventory plugin
+    usage: /undeadinventory <subcommand>  
+    aliases: [ui]
+permissions:
+  undeadinventory.locate:
+      description: Provides the ability to find the nearest mob named after a player.
+      default: true
+  undeadinventory.count:
+      description: Allows the user to check how many mobs named after players are currently loaded in the world.
+      default: true
+      children:
+        - undeadinventory.count.<player>
+  undeadinventory.return:
+      description: Allows the user to return their items from a mob named after them.
+      default: op
+  undeadinventory.reload:
+      description: Allows the user to reload the plugin's configuration.
+      default: op

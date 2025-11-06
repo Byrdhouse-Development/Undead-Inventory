@@ -1,0 +1,7 @@
+{
+    "maven.view": "flat",
+    "yaml.schemas": {
+        "https://www.schemastore.org/bukkit-plugin.json": "file:///c%3A/Users/Games/Documents/GitHub/Undead-Inventory/plugin.yml"
+    },
+    "java.compile.nullAnalysis.mode": "automatic"
+}
