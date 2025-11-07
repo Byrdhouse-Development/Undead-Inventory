@@ -1,4 +1,4 @@
-package com.undeadinventory;
+package amethystwyrm.undeadinventory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -43,7 +43,7 @@ public class DeathListenerTest {
         EntityDeathEvent event = mock(EntityDeathEvent.class);
         LivingEntity entity = mock(LivingEntity.class);
         when(event.getEntity()).thenReturn(entity);
-        when(entity.getCustomNameVisible()).thenReturn(false);
+    when(entity.isCustomNameVisible()).thenReturn(false);
         listener.onEntityDeath(event); // Should do nothing
     }
 }

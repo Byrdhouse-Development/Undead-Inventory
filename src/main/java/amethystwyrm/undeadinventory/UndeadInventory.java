@@ -1,4 +1,4 @@
-package com.undeadinventory;
+package amethystwyrm.undeadinventory;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

@@ -1,8 +1,8 @@
 name: '${project.name}'
 version: '${project.version}'
-main: com.undeadinventory.UndeadInventory
+main: amethystwyrm.undeadinventory.UndeadInventory
 load: POSTWORLD
-api-version: 1.20
+api-version: 1.21
 author: AmethystWyrm
 #  website: https://github.com/AmethystWyrm/Undead-Inventory
 description: When a player is killed by a humanoid mob, the mob takes the player's inventory and is renamed. Players can retrieve their items by killing the mob.

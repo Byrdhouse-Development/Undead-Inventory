@@ -1,4 +1,4 @@
-package com.undeadinventory;
+package amethystwyrm.undeadinventory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -18,7 +18,7 @@ public class DeathListener implements Listener {
             EntityType.HUSK,
             EntityType.DROWNED,
             EntityType.SKELETON,
-            EntityType.BOGGED,
+            
             EntityType.STRAY,
             EntityType.WITHER_SKELETON,
             EntityType.PIGLIN,
@@ -40,7 +40,7 @@ public class DeathListener implements Listener {
         if (!HUMANOID_MOBS.contains(killer.getType())) return;
 
         // Transfer player's inventory to the killer mob (main hand, off hand, armor slots)
-        Bukkit.getScheduler().runTaskLater(Bukkit.getPluginManager().getPlugin("UndeadInventory"), () -> {
+            Bukkit.getScheduler().runTaskLater(org.bukkit.plugin.java.JavaPlugin.getPlugin(UndeadInventory.class), () -> {
             // Change mob's name
             killer.setCustomName("Killer of " + player.getName());
             killer.setCustomNameVisible(true);
@@ -61,7 +61,7 @@ public class DeathListener implements Listener {
 
             // Store the rest of the player's inventory in the mob's persistent data container
             org.bukkit.persistence.PersistentDataContainer data = killer.getPersistentDataContainer();
-            org.bukkit.NamespacedKey key = new org.bukkit.NamespacedKey(Bukkit.getPluginManager().getPlugin("UndeadInventory"), "player_inventory");
+            org.bukkit.NamespacedKey key = new org.bukkit.NamespacedKey(org.bukkit.plugin.java.JavaPlugin.getPlugin(UndeadInventory.class), "player_inventory");
             java.util.List<String> serialized = new java.util.ArrayList<>();
             // If the mob already has inventory, append to it
             if (data.has(key, org.bukkit.persistence.PersistentDataType.STRING)) {
@@ -74,11 +74,7 @@ public class DeathListener implements Listener {
                 ItemStack item = player.getInventory().getItem(i);
                 if (item != null && item.getType() != Material.AIR) {
                     try {
-                        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-                        org.bukkit.configuration.file.YamlConfiguration config = new org.bukkit.configuration.file.YamlConfiguration();
-                        config.set("item", item);
-                        config.save(baos);
-                        String base64 = java.util.Base64.getEncoder().encodeToString(baos.toByteArray());
+                        String base64 = itemToBase64(item);
                         serialized.add(base64);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -96,11 +92,11 @@ public class DeathListener implements Listener {
     public void onEntityDeath(EntityDeathEvent event) {
         if (!(event.getEntity() instanceof LivingEntity)) return;
         LivingEntity entity = (LivingEntity) event.getEntity();
-        if (!entity.getCustomNameVisible() || entity.getCustomName() == null) return;
+        if (!entity.isCustomNameVisible() || entity.getCustomName() == null) return;
         if (!entity.getCustomName().startsWith("Killer of ")) return;
 
-        org.bukkit.persistence.PersistentDataContainer data = entity.getPersistentDataContainer();
-        org.bukkit.NamespacedKey key = new org.bukkit.NamespacedKey(Bukkit.getPluginManager().getPlugin("UndeadInventory"), "player_inventory");
+    org.bukkit.persistence.PersistentDataContainer data = entity.getPersistentDataContainer();
+    org.bukkit.NamespacedKey key = new org.bukkit.NamespacedKey(org.bukkit.plugin.java.JavaPlugin.getPlugin(UndeadInventory.class), "player_inventory");
         if (!data.has(key, org.bukkit.persistence.PersistentDataType.STRING)) return;
         String serialized = data.get(key, org.bukkit.persistence.PersistentDataType.STRING);
         if (serialized == null || serialized.isEmpty()) return;
@@ -111,10 +107,7 @@ public class DeathListener implements Listener {
             String[] items = serialized.split(";");
             for (String base64 : items) {
                 try {
-                    byte[] bytes = java.util.Base64.getDecoder().decode(base64);
-                    java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(bytes);
-                    org.bukkit.configuration.file.YamlConfiguration config = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(bais));
-                    ItemStack item = config.getItemStack("item");
+                    ItemStack item = itemFromBase64(base64);
                     if (item != null && item.getType() != Material.AIR) {
                         killer.getInventory().addItem(item);
                     }
@@ -128,4 +121,25 @@ public class DeathListener implements Listener {
     }
 
     // All unused code removed.
+
+    // Helper: serialize an ItemStack to a Base64 string
+    private static String itemToBase64(ItemStack item) throws java.io.IOException {
+        try (java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+             org.bukkit.util.io.BukkitObjectOutputStream boos = new org.bukkit.util.io.BukkitObjectOutputStream(baos)) {
+            boos.writeObject(item);
+            boos.flush();
+            return java.util.Base64.getEncoder().encodeToString(baos.toByteArray());
+        }
+    }
+
+    // Helper: deserialize an ItemStack from a Base64 string
+    private static ItemStack itemFromBase64(String data) throws java.io.IOException, ClassNotFoundException {
+        byte[] bytes = java.util.Base64.getDecoder().decode(data);
+        try (java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(bytes);
+             org.bukkit.util.io.BukkitObjectInputStream bois = new org.bukkit.util.io.BukkitObjectInputStream(bais)) {
+            Object obj = bois.readObject();
+            if (obj instanceof ItemStack) return (ItemStack) obj;
+            return null;
+        }
+    }
 }
